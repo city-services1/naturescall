@@ -19,25 +19,31 @@
     </script>
 
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 20px; display: flex; justify-content: center; }
-        .phone-container { width: 360px; background: white; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; border: 8px solid #333; position: relative; min-height: 620px; display: flex; flex-direction: column; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 0; display: flex; justify-content: center; }
+        
+        /* تعديل الحاوية لتمتد بكامل الشاشة على الهواتف وتلغي الإطار الأسود */
+        .phone-container { width: 100%; max-width: 450px; background: white; overflow: hidden; position: relative; min-height: 100vh; display: flex; flex-direction: column; box-shadow: none; border: none; border-radius: 0; }
         
         /* الهيدر المحتوي على الأزرار الجانبية */
-        .header { background: #2ecc71; color: white; padding: 25px 20px 20px 20px; text-align: center; position: relative; }
-        .lang-btn { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.3); border: none; color: white; padding: 5px 10px; border-radius: 15px; cursor: pointer; font-size: 12px; }
+        .header { background: #2ecc71; color: white; padding: 35px 20px 20px 20px; text-align: center; position: relative; }
+        .lang-btn { position: absolute; top: 20px; left: 15px; background: rgba(255,255,255,0.3); border: none; color: white; padding: 5px 10px; border-radius: 15px; cursor: pointer; font-size: 12px; }
         
         /* زر الثلاث نقاط في أعلى اليمين */
-        .menu-btn { position: absolute; top: 12px; right: 15px; background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px 10px; line-height: 1; }
+        .menu-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px 10px; line-height: 1; }
         
+        /* تصميم أيقونة اللوجو الجديد في الهيدر */
+        .app-logo { width: 55px; height: 55px; margin-bottom: 5px; vertical-align: middle; }
+
         /* القائمة المنسدلة للفلاتر */
-        .dropdown-menu { display: none; position: absolute; top: 50px; right: 15px; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 20; width: 160px; border: 1px solid #eee; overflow: hidden; }
+        .dropdown-menu { display: none; position: absolute; top: 55px; right: 15px; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 20; width: 160px; border: 1px solid #eee; overflow: hidden; }
         .dropdown-item { padding: 12px 15px; text-align: right; background: none; border: none; width: 100%; font-size: 14px; font-weight: bold; color: #333; cursor: pointer; border-bottom: 1px solid #eee; display: block; box-sizing: border-box; }
         .dropdown-item:last-child { border-bottom: none; }
         .dropdown-item:active { background: #f0f0f0; }
         .dropdown-item.active { background: #2ecc71; color: white; }
 
-        .content { padding: 20px; flex: 1; overflow-y: auto; max-height: 450px; }
-        .btn-main { display: block; width: 100%; background: #3498db; color: white; border: none; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; text-decoration: none; text-align: center; box-sizing: border-box; }
+        /* تعديل مساحة المحتوى الممتد */
+        .content { padding: 20px; flex: 1; overflow-y: auto; }
+        .btn-main { display: block; width: 100%; background: #3498db; color: white; border: none; padding: 14px; border-radius: 10px; margin-bottom: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; text-decoration: none; text-align: center; box-sizing: border-box; }
         .btn-main:active { transform: scale(0.98); }
         .btn-secondary { background: #95a5a6; }
         
@@ -74,7 +80,8 @@
             <button class="dropdown-item" id="f-acc" onclick="setFilter('accessible')">♿ ذوي الاحتياجات</button>
         </div>
 
-        <h2 id="app-title">نداء الطبيعة</h2>
+        <img class="app-logo" src="https://img.icons8.com/fluency/512/toilet.png" alt="Toilet Logo">
+        <h2 id="app-title" style="margin: 5px 0 0 0;">نداء الطبيعة</h2>
         <p id="app-subtitle" style="font-size: 13px; margin: 5px 0 0 0;">دليلك للعثور على أقرب مراحيض عمومية ونظيفة</p>
     </div>
 

@@ -1,17 +1,17 @@
 {
-    "name": "Nature's Call - نداء الطبيعة",
-    "short_name": "NatureCall",
-    "description": "دليلك للعثور على أقرب مراحيض عمومية في أكادير",
-    "start_url": "./index.html",
-    "display": "standalone",
-    "background_color": "#f0f4f8",
-    "theme_color": "#2ecc71",
-    "orientation": "portrait",
-    "icons": [
-      {
-        "src": "https://cdn-icons-png.flaticon.com/512/2353/2353684.png",
-        "sizes": "512x512",
-        "type": "image/png"
-      }
-    ]
-  }
+  "name": "Nature's Call - نداء الطبيعة",
+  "short_name": "NatureCall",
+  "description": "دليلك للعثور على أقرب مراحيض عمومية في أكادير",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f0f4f8",
+  "theme_color": "#2ecc71",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://img.icons8.com/fluency/512/toilet.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
