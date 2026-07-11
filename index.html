@@ -7,26 +7,40 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f4f8; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .phone-container { width: 360px; background: white; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden; border: 8px solid #333; position: relative; min-height: 620px; display: flex; flex-direction: column; }
-        .header { background: #2ecc71; color: white; padding: 20px; text-align: center; position: relative; }
+        
+        /* تعديل الهيدر ليحتوي على الأزرار الجانبية */
+        .header { background: #2ecc71; color: white; padding: 25px 20px 20px 20px; text-align: center; position: relative; }
+        
         .lang-btn { position: absolute; top: 15px; left: 15px; background: rgba(255,255,255,0.3); border: none; color: white; padding: 5px 10px; border-radius: 15px; cursor: pointer; font-size: 12px; }
+        
+        /* زر الثلاث نقاط في أعلى اليمين */
+        .menu-btn { position: absolute; top: 12px; right: 15px; background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 5px 10px; line-height: 1; }
+        
+        /* القائمة المنسدلة للفلاتر */
+        .dropdown-menu { display: none; position: absolute; top: 50px; right: 15px; background: white; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 20; width: 160px; border: 1px solid #eee; overflow: hidden; }
+        .dropdown-item { padding: 12px 15px; text-align: right; background: none; border: none; width: 100%; font-size: 14px; font-weight: bold; color: #333; cursor: pointer; border-bottom: 1px solid #eee; display: block; box-sizing: border-box; }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:active { background: #f0f0f0; }
+        .dropdown-item.active { background: #2ecc71; color: white; }
+
         .content { padding: 20px; flex: 1; overflow-y: auto; max-height: 450px; }
         .btn-main { display: block; width: 100%; background: #3498db; color: white; border: none; padding: 12px; border-radius: 10px; margin-bottom: 10px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; text-decoration: none; text-align: center; box-sizing: border-box; }
         .btn-main:active { transform: scale(0.98); }
         .btn-secondary { background: #95a5a6; }
+        
         .toilet-card { background: #fdfdfd; border: 1px solid #e0e0e0; border-radius: 10px; padding: 15px; margin-top: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); cursor: pointer; transition: 0.3s; }
         .toilet-card:hover { border-color: #2ecc71; background: #fafafa; }
-        .toilet-name { font-weight: bold; color: #2c3e50; margin-bottom: 5px; }
-        .tag { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 12px; color: white; margin-right: 5px; }
+        .toilet-name { font-weight: bold; color: #2c3e50; margin-bottom: 5px; text-align: right; }
+        .tags-container { text-align: right; }
+        .tag { display: inline-block; padding: 3px 8px; border-radius: 5px; font-size: 12px; color: white; margin-left: 5px; margin-top: 5px; }
         .tag-open { background: #2ecc71; }
         .tag-closed { background: #e74c3c; }
         .tag-price { background: #e67e22; }
-        .distance-text { color: #e74c3c; font-weight: bold; font-size: 13px; margin-top: 5px; display: block; }
+        .tag-accessible { background: #9b59b6; }
+        .distance-text { color: #e74c3c; font-weight: bold; font-size: 13px; margin-top: 8px; display: block; text-align: right; }
         
-        /* تصميم النوافذ المنبثقة */
-        .modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10; }
+        .modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 30; }
         .modal-content { background: white; width: 85%; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        
-        /* تصميم حقول الإدخال */
         .form-group { margin-bottom: 15px; text-align: right; }
         .form-group label { display: block; font-size: 14px; color: #34495e; margin-bottom: 5px; font-weight: bold; }
         .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
@@ -34,9 +48,22 @@
 </head>
 <body>
 
-<div class="phone-container">
+<div class="phone-container" onclick="closeDropdownOutside(event)">
     <div class="header">
+        <!-- زر اللغة على اليسار -->
         <button class="lang-btn" onclick="toggleLanguage()">English</button>
+        
+        <!-- زر 3 نقاط للفلاتر على اليمين -->
+        <button class="menu-btn" onclick="toggleDropdown(event)">⋮</button>
+        
+        <!-- القائمة المنسدلة للفلاتر -->
+        <div class="dropdown-menu" id="filter-dropdown">
+            <button class="dropdown-item active" id="f-all" onclick="setFilter('all')">الكل</button>
+            <button class="dropdown-item" id="f-free" onclick="setFilter('free')">🆓 مجاني</button>
+            <button class="dropdown-item" id="f-open" onclick="setFilter('open')">🟢 مفتوح</button>
+            <button class="dropdown-item" id="f-acc" onclick="setFilter('accessible')">♿ ذوي الاحتياجات</button>
+        </div>
+
         <h2 id="app-title">نداء الطبيعة</h2>
         <p id="app-subtitle" style="font-size: 13px; margin: 5px 0 0 0;">دليلك للعثور على أقرب مراحيض عمومية ونظيفة</p>
     </div>
@@ -45,11 +72,10 @@
         <button class="btn-main" id="btn-find" onclick="getUserLocationAndSort()">🔍 تفعيل تحديد الموقع والأقرب فالأقرب</button>
         <button class="btn-main btn-secondary" id="btn-add" onclick="openAddModal()">➕ إضافة مرحاض جديد</button>
 
-        <h3 id="list-title" style="margin-top: 25px; color: #7f8c8d; font-size: 14px;">📍 المواقع المتوفرة بأكادير:</h3>
+        <h3 id="list-title" style="margin-top: 20px; color: #7f8c8d; font-size: 14px; text-align: right;">📍 المواقع المتوفرة بأكادير:</h3>
         <div id="toilets-list"></div>
     </div>
 
-    <!-- 1. نافذة تفاصيل المرحاض -->
     <div class="modal" id="details-modal">
         <div class="modal-content">
             <h3 id="modal-toilet-name">اسم الموقع</h3>
@@ -59,7 +85,6 @@
         </div>
     </div>
 
-    <!-- 2. واجهة إضافة مرحاض جديد (جديدة) -->
     <div class="modal" id="add-modal">
         <div class="modal-content">
             <h3 id="add-modal-title" style="color: #2c3e50; margin-top: 0;">➕ اقترح موقعاً جديداً</h3>
@@ -76,7 +101,6 @@
         </div>
     </div>
 
-    <!-- 3. واجهة الشكر التلقائية (جديدة) -->
     <div class="modal" id="thanks-modal" style="background: rgba(46, 204, 113, 0.9);">
         <div class="modal-content" style="box-shadow: none;">
             <h2 style="color: #2ecc71; font-size: 40px; margin: 0;">🎉</h2>
@@ -90,7 +114,7 @@
     const translations = {
         ar: {
             title: "نداء الطبيعة", subtitle: "دليلك للعثور على أقرب مراحيض عمومية ونظيفة",
-            find: "🔍 تفعيل تحديد الموقع والأقرب فالأقرب", add: "➕ إضافة مرحاض جديد", list: "📍 المواقع المتوفرة بأكادير (مرتبة بالأقرب):",
+            find: "🔍 تفعيل تحديد الموقع والأقرب فالأقرب", add: "➕ إضافة مرحاض جديد", list: "📍 المواقع المتوفرة بأكادير:",
             free: "مجاني", open: "مفتوح الآن", closed: "مغلق حالياً", langLabel: "English",
             close: "إغلاق", distance: "المسافة إليك: ", rating: "التقييم: ", simulate: "🗺️ فتح في خرائط جوجل",
             gps_error: "يرجى تفعيل الـ GPS في هاتفك وإعطاء الإذن للتطبيق لحساب المسافات.",
@@ -98,11 +122,12 @@
             addTitle: "➕ اقترح موقعاً جديداً", lblName: "اسم المرحاض / المنطقة:", placeholderName: "مثال: مرحاض حديقة ابن زيدون",
             lblLoc: "العنوان أو الإحداثيات (GPS):", placeholderLoc: "مثال: قرب المسرح البلدي أو 30.41,-9.60",
             submit: "إرسال المقترح", cancel: "إلغاء",
-            thanksTitle: "شكراً لك على مساعدتك!", thanksDesc: "تم استلام البيانات وجاري مراجعة الموقع لإضافته في الدليل."
+            thanksTitle: "شكراً لك على مساعدتك!", thanksDesc: "تم استلام البيانات وجاري مراجعة الموقع لإضافته في الدليل.",
+            fAll: "الكل", fFree: "🆓 مجاني", fOpen: "🟢 مفتوح", fAcc: "♿ ذوي الاحتياجات", tagAcc: "مهيأ لذوي الاحتياجات"
         },
         en: {
             title: "Nature's Call", subtitle: "Your guide to finding nearest clean toilets",
-            find: "🔍 Enable GPS & Sort by Nearest", add: "➕ Add New Toilet", list: "📍 Available Locations (Sorted by Nearest):",
+            find: "🔍 Enable GPS & Sort by Nearest", add: "➕ Add New Toilet", list: "📍 Available Locations in Agadir:",
             free: "Free", open: "Open Now", closed: "Closed Now", langLabel: "العربية",
             close: "Close", distance: "Distance to you: ", rating: "Rating: ", simulate: "🗺️ Open in Google Maps",
             gps_error: "Please enable GPS and allow location permission to calculate distances.",
@@ -110,35 +135,37 @@
             addTitle: "➕ Suggest a New Location", lblName: "Toilet / Area Name:", placeholderName: "e.g., Ibn Zaydoun Garden Toilet",
             lblLoc: "Address or GPS Coordinates:", placeholderLoc: "e.g., Near Municipal Theater or 30.41,-9.60",
             submit: "Submit Suggestion", cancel: "Cancel",
-            thanksTitle: "Thank you for your help!", thanksDesc: "Data received. We will review the location to add it to the directory."
+            thanksTitle: "Thank you for your help!", thanksDesc: "Data received. We will review the location to add it to the directory.",
+            fAll: "All", fFree: "🆓 Free", fOpen: "🟢 Open", fAcc: "♿ Accessible", tagAcc: "Wheelchair Accessible"
         }
     };
 
     let toilets = [
-        { id: 1, nameAr: "مرحاض كورنيش أكادير الرئيسي", nameEn: "Agadir Corniche Main Toilet", price: "2 MAD", isOpen: true, rating: "4.5", lat: 30.4194, lng: -9.6052, currentDistance: null },
-        { id: 2, nameAr: "مرحاض قرب سوق الأحد (الباب 5)", nameEn: "Souk El Had Toilet (Gate 5)", price: "مجاني", isOpen: true, rating: "3.8", lat: 30.4115, lng: -9.5812, currentDistance: null },
-        { id: 3, nameAr: "مرحاض حديقة أولهاو الشهيرة", nameEn: "Olhao Garden Public Toilet", price: "1 MAD", isOpen: false, rating: "4.2", lat: 30.4242, lng: -9.5981, currentDistance: null },
-        { id: 4, nameAr: "مرحاض مارينا أكادير (قرب اليخوت)", nameEn: "Agadir Marina Luxury Toilet", price: "5 MAD", isOpen: true, rating: "4.8", lat: 30.4285, lng: -9.6145, currentDistance: null },
-        { id: 5, nameAr: "مرحاض ساحة الأمل", nameEn: "Place Al Amal Public Toilet", price: "2 MAD", isOpen: true, rating: "3.5", lat: 30.4218, lng: -9.5989, currentDistance: null },
-        { id: 6, nameAr: "مرحاض محطة الحافلات الباطوار", nameEn: "Battoir Bus Station Toilet", price: "1 MAD", isOpen: true, rating: "3.0", lat: 30.4068, lng: -9.5894, currentDistance: null },
-        { id: 7, nameAr: "مرحاض تالبورجت (قرب المسجد)", nameEn: "Talborjt Mosque Public Toilet", price: "مجاني", isOpen: true, rating: "4.0", lat: 30.4249, lng: -9.5921, currentDistance: null },
+        { id: 1, nameAr: "مرحاض كورنيش أكادير الرئيسي", nameEn: "Agadir Corniche Main Toilet", price: "2 MAD", isOpen: true, rating: "4.5", lat: 30.4194, lng: -9.6052, isAccessible: true, currentDistance: null },
+        { id: 2, nameAr: "مرحاض قرب سوق الأحد (الباب 5)", nameEn: "Souk El Had Toilet (Gate 5)", price: "مجاني", isOpen: true, rating: "3.8", lat: 30.4115, lng: -9.5812, isAccessible: false, currentDistance: null },
+        { id: 3, nameAr: "مرحاض حديقة أولهاو الشهيرة", nameEn: "Olhao Garden Public Toilet", price: "1 MAD", isOpen: false, rating: "4.2", lat: 30.4242, lng: -9.5981, isAccessible: true, currentDistance: null },
+        { id: 4, nameAr: "مرحاض مارينا أكادير (قرب اليخوت)", nameEn: "Agadir Marina Luxury Toilet", price: "5 MAD", isOpen: true, rating: "4.8", lat: 30.4285, lng: -9.6145, isAccessible: true, currentDistance: null },
+        { id: 5, nameAr: "مرحاض ساحة الأمل", nameEn: "Place Al Amal Public Toilet", price: "2 MAD", isOpen: true, rating: "3.5", lat: 30.4218, lng: -9.5989, isAccessible: false, currentDistance: null },
+        { id: 6, nameAr: "مرحاض محطة الحافلات الباطوار", nameEn: "Battoir Bus Station Toilet", price: "1 MAD", isOpen: true, rating: "3.0", lat: 30.4068, lng: -9.5894, isAccessible: false, currentDistance: null },
+        { id: 7, nameAr: "مرحاض تالبورجت (قرب المسجد)", nameEn: "Talborjt Mosque Public Toilet", price: "مجاني", isOpen: true, rating: "4.0", lat: 30.4249, lng: -9.5921, isAccessible: true, currentDistance: null },
         { id: 8, nameAr: "مرحاض فونتي (المنطقة السياحية)", price: "2 MAD", isOpen: true, rating: "4.1", lat: 30.3985, lng: -9.6012, currentDistance: null },
-        { id: 9, nameAr: "مرحاض قرب شاطئ أنزا", nameEn: "Anza Beach Public Toilet", price: "مجاني", isOpen: true, rating: "3.6", lat: 30.4421, lng: -9.6385, currentDistance: null },
-        { id: 10, nameAr: "مرحاض حي الداخلة (قرب المركب الجامعي)", nameEn: "Dakhla Neighbourhood Toilet", price: "1 MAD", isOpen: false, rating: "3.4", lat: 30.4122, lng: -9.5584, currentDistance: null },
-        { id: 11, nameAr: "مرحاض الهدى (قرب الملحقة الإدارية)", nameEn: "El Houda Public Toilet", price: "2 MAD", isOpen: true, rating: "3.9", lat: 30.3950, lng: -9.5520, currentDistance: null },
-        { id: 12, nameAr: "مرحاض حي السلام التجاري", nameEn: "Hay Salam Commercial Toilet", price: "1 MAD", isOpen: true, rating: "3.7", lat: 30.4025, lng: -9.5630, currentDistance: null },
-        { id: 13, nameAr: "مرحاض قرب حديقة ابن زيدون", nameEn: "Ibn Zaydoun Garden Toilet", price: "مجاني", isOpen: true, rating: "4.2", lat: 30.4205, lng: -9.5940, currentDistance: null },
-        { id: 14, nameAr: "مرحاض صونابا (المنطقة السكنية)", nameEn: "Sonaba Residential Toilet", price: "2 MAD", isOpen: true, rating: "4.4", lat: 30.3910, lng: -9.5990, currentDistance: null },
-        { id: 15, nameAr: "مرحاض الحي المحمدي الرئيسي", nameEn: "Hay Mohammadi Main Toilet", price: "2 MAD", isOpen: true, rating: "4.0", lat: 30.4350, lng: -9.5650, currentDistance: null },
-        { id: 16, nameAr: "مرحاض بنسركاو (طريق إنزكان)", nameEn: "Bensergao Public Toilet", price: "1 MAD", isOpen: false, rating: "3.2", lat: 30.3850, lng: -9.5780, currentDistance: null },
-        { id: 17, nameAr: "مرحاض شرف (أكادير الفوق)", nameEn: "Charaf Heights Toilet", price: "2 MAD", isOpen: true, rating: "3.9", lat: 30.4380, lng: -9.5870, currentDistance: null },
-        { id: 18, nameAr: "مرحاض قرب سوق الوفاء", nameEn: "Souk El Wafa Public Toilet", price: "مجاني", isOpen: true, rating: "3.5", lat: 30.4080, lng: -9.5720, currentDistance: null },
-        { id: 19, nameAr: "مرحاض حي تيكيوين الرئيسي", nameEn: "Tikiouine Centre Toilet", price: "1 MAD", isOpen: true, rating: "3.8", lat: 30.3890, lng: -9.5080, currentDistance: null },
-        { id: 20, nameAr: "مرحاض محطة القطار المستقبلية / تاسيلا", nameEn: "Tassila District Toilet", price: "2 MAD", isOpen: true, rating: "3.6", lat: 30.3995, lng: -9.5245, currentDistance: null }
+        { id: 9, nameAr: "مرحاض قرب شاطئ أنزا", nameEn: "Anza Beach Public Toilet", price: "مجاني", isOpen: true, rating: "3.6", lat: 30.4421, lng: -9.6385, isAccessible: false, currentDistance: null },
+        { id: 10, nameAr: "مرحاض حي الداخلة (قرب المركب الجامعي)", nameEn: "Dakhla Neighbourhood Toilet", price: "1 MAD", isOpen: false, rating: "3.4", lat: 30.4122, lng: -9.5584, isAccessible: false, currentDistance: null },
+        { id: 11, nameAr: "مرحاض الهدى (قرب الملحقة الإدارية)", nameEn: "El Houda Public Toilet", price: "2 MAD", isOpen: true, rating: "3.9", lat: 30.3950, lng: -9.5520, isAccessible: true, currentDistance: null },
+        { id: 12, nameAr: "مرحاض حي السلام التجاري", nameEn: "Hay Salam Commercial Toilet", price: "1 MAD", isOpen: true, rating: "3.7", lat: 30.4025, lng: -9.5630, isAccessible: false, currentDistance: null },
+        { id: 13, nameAr: "مرحاض قرب حديقة ابن زيدون", nameEn: "Ibn Zaydoun Garden Toilet", price: "مجاني", isOpen: true, rating: "4.2", lat: 30.4205, lng: -9.5940, isAccessible: true, currentDistance: null },
+        { id: 14, nameAr: "مرحاض صونابا (المنطقة السكنية)", nameEn: "Sonaba Residential Toilet", price: "2 MAD", isOpen: true, rating: "4.4", lat: 30.3910, lng: -9.5990, isAccessible: true, currentDistance: null },
+        { id: 15, nameAr: "مرحاض الحي المحمدي الرئيسي", nameEn: "Hay Mohammadi Main Toilet", price: "2 MAD", isOpen: true, rating: "4.0", lat: 30.4350, lng: -9.5650, isAccessible: false, currentDistance: null },
+        { id: 16, nameAr: "مرحاض بنسركاو (طريق إنزكان)", nameEn: "Bensergao Public Toilet", price: "1 MAD", isOpen: false, rating: "3.2", lat: 30.3850, lng: -9.5780, isAccessible: false, currentDistance: null },
+        { id: 17, nameAr: "مرحاض شرف (أكادير الفوق)", nameEn: "Charaf Heights Toilet", price: "2 MAD", isOpen: true, rating: "3.9", lat: 30.4380, lng: -9.5870, isAccessible: true, currentDistance: null },
+        { id: 18, nameAr: "مرحاض قرب سوق الوفاء", nameEn: "Souk El Wafa Public Toilet", price: "مجاني", isOpen: true, rating: "3.5", lat: 30.4080, lng: -9.5720, isAccessible: false, currentDistance: null },
+        { id: 19, nameAr: "مرحاض حي تيكيوين الرئيسي", nameEn: "Tikiouine Centre Toilet", price: "1 MAD", isOpen: true, rating: "3.8", lat: 30.3890, lng: -9.5080, isAccessible: false, currentDistance: null },
+        { id: 20, nameAr: "مرحاض محطة القطار المستقبلية / تاسيلا", nameEn: "Tassila District Toilet", price: "2 MAD", isOpen: true, rating: "3.6", lat: 30.3995, lng: -9.5245, isAccessible: true, currentDistance: null }
     ];
 
     let currentLang = 'ar';
     let selectedToilet = null;
+    let currentFilter = 'all';
 
     function calculateDistance(lat1, lon1, lat2, lon2) {
         const R = 6371;
@@ -149,6 +176,28 @@
         return R * c; 
     }
 
+    // دوال فتح وإغلاق قائمة الـ 3 نقاط
+    function toggleDropdown(event) {
+        event.stopPropagation();
+        const menu = document.getElementById('filter-dropdown');
+        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function closeDropdownOutside(event) {
+        document.getElementById('filter-dropdown').style.display = 'none';
+    }
+
+    function setFilter(filterType) {
+        currentFilter = filterType;
+        document.querySelectorAll('.dropdown-item').forEach(btn => btn.classList.remove('active'));
+        if(filterType === 'all') document.getElementById('f-all').classList.add('active');
+        if(filterType === 'free') document.getElementById('f-free').classList.add('active');
+        if(filterType === 'open') document.getElementById('f-open').classList.add('active');
+        if(filterType === 'accessible') document.getElementById('f-acc').classList.add('active');
+        
+        updateUI();
+    }
+
     function updateUI() {
         const t = translations[currentLang];
         document.getElementById('app-title').innerText = t.title;
@@ -157,9 +206,22 @@
         document.getElementById('btn-add').innerText = t.add;
         document.getElementById('list-title').innerText = t.list;
         document.querySelector('.lang-btn').innerText = t.langLabel;
-        document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+        
+        // تعديل اتجاه القائمة المنسدلة حسب اتجاه اللغة
+        const menu = document.getElementById('filter-dropdown');
+        if(currentLang === 'ar') {
+            document.documentElement.dir = 'rtl';
+            menu.style.right = '15px'; menu.style.left = 'auto';
+        } else {
+            document.documentElement.dir = 'ltr';
+            menu.style.left = '15px'; menu.style.right = 'auto';
+        }
 
-        // تحديث نصوص واجهة الإضافة ديناميكياً حسب اللغة
+        document.getElementById('f-all').innerText = t.fAll;
+        document.getElementById('f-free').innerText = t.fFree;
+        document.getElementById('f-open').innerText = t.fOpen;
+        document.getElementById('f-acc').innerText = t.fAcc;
+
         document.getElementById('add-modal-title').innerText = t.addTitle;
         document.getElementById('lbl-name').innerText = t.lblName;
         document.getElementById('input-name').placeholder = t.placeholderName;
@@ -173,12 +235,21 @@
         const listDiv = document.getElementById('toilets-list');
         listDiv.innerHTML = '';
 
-        toilets.forEach(toilet => {
+        let filteredToilets = toilets.filter(toilet => {
+            if (currentFilter === 'free') return toilet.price === 'مجاني';
+            if (currentFilter === 'open') return toilet.isOpen === true;
+            if (currentFilter === 'accessible') return toilet.isAccessible === true;
+            return true;
+        });
+
+        filteredToilets.forEach(toilet => {
             const name = currentLang === 'ar' ? toilet.nameAr : (toilet.nameEn || toilet.nameAr);
             const priceText = (toilet.price === 'مجاني' && currentLang === 'en') ? t.free : toilet.price;
             const statusClass = toilet.isOpen ? 'tag-open' : 'tag-closed';
             const statusText = toilet.isOpen ? t.open : t.closed;
             
+            const accHTML = toilet.isAccessible ? `<span class="tag tag-accessible">♿ ${t.tagAcc}</span>` : '';
+
             let distanceHTML = '';
             if (toilet.currentDistance !== null) {
                 let distStr = toilet.currentDistance < 1 ? `${Math.round(toilet.currentDistance * 1000)} متر` : `${toilet.currentDistance.toFixed(2)} كم`;
@@ -189,10 +260,11 @@
             listDiv.innerHTML += `
                 <div class="toilet-card" onclick="openToiletDetails(${toilet.id})">
                     <div class="toilet-name">${name}</div>
-                    <div style="margin-top: 8px;">
+                    <div class="tags-container">
                         <span class="tag ${statusClass}">${statusText}</span>
                         <span class="tag tag-price">${priceText}</span>
-                        <span style="font-size: 13px; color: #f1c40f;">⭐ ${toilet.rating}/5</span>
+                        ${accHTML}
+                        <span style="font-size: 13px; color: #f1c40f; display:inline-block; margin: 0 5px;">⭐ ${toilet.rating}/5</span>
                         ${distanceHTML}
                     </div>
                 </div>
@@ -222,7 +294,11 @@
             distStr = selectedToilet.currentDistance < 1 ? `${Math.round(selectedToilet.currentDistance * 1000)} متر` : `${selectedToilet.currentDistance.toFixed(2)} كم`;
         }
         document.getElementById('modal-toilet-name').innerText = name;
-        document.getElementById('modal-toilet-details').innerHTML = `<strong>${t.distance}</strong> ${distStr} <br><strong>${t.rating}</strong> ⭐ ${selectedToilet.rating}/5`;
+        document.getElementById('modal-toilet-details').innerHTML = `
+            <strong>${t.distance}</strong> ${distStr} <br>
+            <strong>${t.rating}</strong> ⭐ ${selectedToilet.rating}/5 <br>
+            <strong>♿:</strong> ${selectedToilet.isAccessible ? t.tagAcc : (currentLang === 'ar' ? 'غير متوفر' : 'Not available')}
+        `;
         document.getElementById('btn-route').innerText = t.simulate;
         document.querySelector('#details-modal button.btn-secondary').innerText = t.close;
         const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${selectedToilet.lat},${selectedToilet.lng}&travelmode=walking`;
@@ -230,33 +306,21 @@
         document.getElementById('details-modal').style.display = 'flex';
     }
 
-    // دوال التحكم بالواجهات المنبثقة الجديدة
     function openAddModal() { document.getElementById('add-modal').style.display = 'flex'; }
     function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
 
     function submitNewToilet() {
         const name = document.getElementById('input-name').value.trim();
         const loc = document.getElementById('input-location').value.trim();
-        
         if(name === "" || loc === "") {
             alert(currentLang === 'ar' ? "الرجاء ملء جميع الحقول!" : "Please fill in all fields!");
             return;
         }
-
-        // إغلاق واجهة الإدخال
         closeModal('add-modal');
-        
-        // تفريغ الحقول للمرة القادمة
         document.getElementById('input-name').value = "";
         document.getElementById('input-location').value = "";
-
-        // إظهار واجهة الشكر التلقائية
         document.getElementById('thanks-modal').style.display = 'flex';
-
-        // إخفاء واجهة الشكر تلقائياً بعد ثانيتين (2000 مللي ثانية) والعودة للرئيسية
-        setTimeout(() => {
-            closeModal('thanks-modal');
-        }, 2000);
+        setTimeout(() => { closeModal('thanks-modal'); }, 2000);
     }
 
     function toggleLanguage() { currentLang = currentLang === 'ar' ? 'en' : 'ar'; updateUI(); }
