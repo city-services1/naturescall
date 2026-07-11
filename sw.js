@@ -1,12 +1,11 @@
-const CACHE_NAME = 'natures-call-v1';
+const CACHE_NAME = 'natures-call-v2';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json',
-  'https://cdn-icons-png.flaticon.com/512/2353/2353684.png'
+  './manifest.json'
 ];
 
-// تثبيت الـ Service Worker وحفظ الملفات في الكاش
+// التثبيت وحفظ الملفات
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -15,7 +14,18 @@ self.addEventListener('install', event => {
   );
 });
 
-// تشغيل التطبيق من الكاش عند عدم وجود إنترنت
+// التفعيل ومسح الكاش القديم
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+      );
+    })
+  );
+});
+
+// الاستجابة لطلبات الشبكة
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
