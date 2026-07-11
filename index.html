@@ -58,6 +58,8 @@
             font-weight: bold;
             cursor: pointer;
             transition: 0.2s;
+            text-decoration: none;
+            text-align: center;
         }
         .btn-main:active { transform: scale(0.98); }
         .btn-secondary { background: #95a5a6; }
@@ -80,7 +82,6 @@
         .tag-closed { background: #e74c3c; }
         .tag-price { background: #e67e22; }
 
-        /* النافذة المنبثقة للتفاصيل */
         .modal {
             display: none;
             position: absolute;
@@ -121,7 +122,7 @@
         <div class="modal-content">
             <h3 id="modal-toilet-name">اسم الموقع</h3>
             <p id="modal-toilet-details">التفاصيل هنا</p>
-            <button class="btn-main" id="btn-route" onclick="simulateRoute()" style="background: #e74c3c;">🗺️ محاكاة طريق الخريطة</button>
+            <a class="btn-main" id="btn-route" target="_blank" style="background: #e74c3c;">🗺️ فتح في خرائط جوجل</a>
             <button class="btn-main btn-secondary" onclick="closeModal()">إغلاق</button>
         </div>
     </div>
@@ -134,22 +135,22 @@
             find: "🔍 أقرب مرحاض", add: "➕ إضافة مرحاض جديد", list: "📍 المواقع المتوفرة بأكادير:",
             free: "مجاني", open: "مفتوح الآن", closed: "مغلق حالياً", langLabel: "English",
             alert_nearest: "أقرب موقع إليك الآن هو: ", alert_add: "شكراً لك! تم إرسال طلب إضافة الموقع الجديد للمراجعة بنجاح.",
-            close: "إغلاق", distance: "المسافة التقريبية: ", rating: "التقييم: ", simulate: "🗺️ محاكاة طريق الخريطة"
+            close: "إغلاق", distance: "المسافة التقريبية: ", rating: "التقييم: ", simulate: "🗺️ فتح في خرائط جوجل"
         },
         en: {
             title: "Nature's Call", subtitle: "Your guide to finding nearest clean toilets",
             find: "🔍 Nearest Toilet", add: "➕ Add New Toilet", list: "📍 Available Locations in Agadir:",
             free: "Free", open: "Open Now", closed: "Closed Now", langLabel: "العربية",
             alert_nearest: "The nearest location to you now is: ", alert_add: "Thank you! New location request submitted for review successfully.",
-            close: "Close", distance: "Approx. Distance: ", rating: "Rating: ", simulate: "🗺️ Simulate Map Route"
+            close: "Close", distance: "Approx. Distance: ", rating: "Rating: ", simulate: "🗺️ Open in Google Maps"
         }
     };
 
-    // إضافة بيانات حقيقية تفصيلية مع حالات تشغيل مختلفة ومسافات افتراضية
+    // إضافة الإحداثيات الجغرافية الحقيقية (lat و lng) لكل موقع فـ أكادير
     const toilets = [
-        { id: 1, nameAr: "مرحاض كورنيش أكادير الرئيسي", nameEn: "Agadir Corniche Main Toilet", price: "2 MAD", isOpen: true, rating: "4.5", dist: "350 متر" },
-        { id: 2, nameAr: "مرحاض قرب سوق الأحد", nameEn: "Souk El Had Public Toilet", price: "مجاني", isOpen: true, rating: "3.8", dist: "1.2 كم" },
-        { id: 3, nameAr: "مرحاض حديقة أولهاو", nameEn: "Olhao Garden Toilet", price: "1 MAD", isOpen: false, rating: "4.2", dist: "2.4 كم" }
+        { id: 1, nameAr: "مرحاض كورنيش أكادير الرئيسي", nameEn: "Agadir Corniche Main Toilet", price: "2 MAD", isOpen: true, rating: "4.5", dist: "350 متر", lat: 30.4194, lng: -9.6052 },
+        { id: 2, nameAr: "مرحاض قرب سوق الأحد", nameEn: "Souk El Had Public Toilet", price: "مجاني", isOpen: true, rating: "3.8", dist: "1.2 كم", lat: 30.4115, lng: -9.5812 },
+        { id: 3, nameAr: "مرحاض حديقة أولهاو", nameEn: "Olhao Garden Toilet", price: "1 MAD", isOpen: false, rating: "4.2", dist: "2.4 كم", lat: 30.4242, lng: -9.5981 }
     ];
 
     let currentLang = 'ar';
@@ -174,7 +175,6 @@
             const statusClass = toilet.isOpen ? 'tag-open' : 'tag-closed';
             const statusText = toilet.isOpen ? t.open : t.closed;
 
-            // إضافة حدث onclick عند الضغط على الكارت لفتح النافذة المنبثقة
             listDiv.innerHTML += `
                 <div class="toilet-card" onclick="openToiletDetails(${toilet.id})">
                     <div class="toilet-name">${name}</div>
@@ -188,20 +188,16 @@
         });
     }
 
-    // 1. زر البحث عن أقرب مرحاض
     function findNearestToilet() {
         const t = translations[currentLang];
-        // الكورنيش هو الأقرب بـ 350 متر
         const nearestName = currentLang === 'ar' ? toilets[0].nameAr : toilets[0].nameEn;
         alert(`${t.alert_nearest}\n📍 ${nearestName} (${toilets[0].dist})`);
     }
 
-    // 2. زر إضافة مرحاض جديد
     function addNewToiletSim() {
         alert(translations[currentLang].alert_add);
     }
 
-    // 3. الضغط على المرحاض لفتح التفاصيل
     function openToiletDetails(id) {
         selectedToilet = toilets.find(t => t.id === id);
         const name = currentLang === 'ar' ? selectedToilet.nameAr : selectedToilet.nameEn;
@@ -215,17 +211,15 @@
         document.getElementById('btn-route').innerText = t.simulate;
         document.querySelector('#details-modal button.btn-secondary').innerText = t.close;
         
+        // هنا نقوم بتركيب رابط خرائط جوجل ديناميكياً باستخدام الإحداثيات
+        const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${selectedToilet.lat},${selectedToilet.lng}&travelmode=walking`;
+        document.getElementById('btn-route').setAttribute('href', googleMapsUrl);
+        
         document.getElementById('details-modal').style.display = 'flex';
     }
 
     function closeModal() {
         document.getElementById('details-modal').style.display = 'none';
-    }
-
-    // 4. محاكاة مسار الخريطة
-    function simulateRoute() {
-        const name = currentLang === 'ar' ? selectedToilet.nameAr : selectedToilet.nameEn;
-        alert(currentLang === 'ar' ? `جاري فتح الخريطة ورسم المسار إلى: ${name}` : `Opening map and drawing route to: ${name}`);
     }
 
     function toggleLanguage() {
