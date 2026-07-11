@@ -21,8 +21,15 @@
         .tag-closed { background: #e74c3c; }
         .tag-price { background: #e67e22; }
         .distance-text { color: #e74c3c; font-weight: bold; font-size: 13px; margin-top: 5px; display: block; }
+        
+        /* تصميم النوافذ المنبثقة */
         .modal { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 10; }
         .modal-content { background: white; width: 85%; border-radius: 20px; padding: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        
+        /* تصميم حقول الإدخال */
+        .form-group { margin-bottom: 15px; text-align: right; }
+        .form-group label { display: block; font-size: 14px; color: #34495e; margin-bottom: 5px; font-weight: bold; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -35,20 +42,46 @@
     </div>
 
     <div class="content">
-        <!-- تفعيل الـ GPS الحقيقي وترتيب القائمة -->
         <button class="btn-main" id="btn-find" onclick="getUserLocationAndSort()">🔍 تفعيل تحديد الموقع والأقرب فالأقرب</button>
-        <button class="btn-main btn-secondary" id="btn-add" onclick="addNewToiletSim()">➕ إضافة مرحاض جديد</button>
+        <button class="btn-main btn-secondary" id="btn-add" onclick="openAddModal()">➕ إضافة مرحاض جديد</button>
 
         <h3 id="list-title" style="margin-top: 25px; color: #7f8c8d; font-size: 14px;">📍 المواقع المتوفرة بأكادير:</h3>
         <div id="toilets-list"></div>
     </div>
 
+    <!-- 1. نافذة تفاصيل المرحاض -->
     <div class="modal" id="details-modal">
         <div class="modal-content">
             <h3 id="modal-toilet-name">اسم الموقع</h3>
             <p id="modal-toilet-details">التفاصيل هنا</p>
             <a class="btn-main" id="btn-route" target="_blank" style="background: #e74c3c;">🗺️ فتح في خرائط جوجل</a>
-            <button class="btn-main btn-secondary" onclick="closeModal()">إغلاق</button>
+            <button class="btn-main btn-secondary" onclick="closeModal('details-modal')">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- 2. واجهة إضافة مرحاض جديد (جديدة) -->
+    <div class="modal" id="add-modal">
+        <div class="modal-content">
+            <h3 id="add-modal-title" style="color: #2c3e50; margin-top: 0;">➕ اقترح موقعاً جديداً</h3>
+            <div class="form-group">
+                <label id="lbl-name">اسم المرحاض / المنطقة:</label>
+                <input type="text" id="input-name" class="form-control" placeholder="مثال: مرحاض حديقة ابن زيدون">
+            </div>
+            <div class="form-group">
+                <label id="lbl-location">العنوان أو الإحداثيات (GPS):</label>
+                <input type="text" id="input-location" class="form-control" placeholder="مثال: قرب المسرح البلدي أو 30.41,-9.60">
+            </div>
+            <button class="btn-main" id="btn-submit" onclick="submitNewToilet()" style="background: #2ecc71;">إرسال المقترح</button>
+            <button class="btn-main btn-secondary" id="btn-cancel" onclick="closeModal('add-modal')">إلغاء</button>
+        </div>
+    </div>
+
+    <!-- 3. واجهة الشكر التلقائية (جديدة) -->
+    <div class="modal" id="thanks-modal" style="background: rgba(46, 204, 113, 0.9);">
+        <div class="modal-content" style="box-shadow: none;">
+            <h2 style="color: #2ecc71; font-size: 40px; margin: 0;">🎉</h2>
+            <h3 id="thanks-title" style="color: #2c3e50;">شكراً لك على مساعدتك!</h3>
+            <p id="thanks-desc" style="color: #7f8c8d; font-size: 14px;">تم استلام البيانات وجاري مراجعة الموقع لإضافته في الدليل.</p>
         </div>
     </div>
 </div>
@@ -59,23 +92,28 @@
             title: "نداء الطبيعة", subtitle: "دليلك للعثور على أقرب مراحيض عمومية ونظيفة",
             find: "🔍 تفعيل تحديد الموقع والأقرب فالأقرب", add: "➕ إضافة مرحاض جديد", list: "📍 المواقع المتوفرة بأكادير (مرتبة بالأقرب):",
             free: "مجاني", open: "مفتوح الآن", closed: "مغلق حالياً", langLabel: "English",
-            alert_add: "شكراً لك! تم إرسال طلب إضافة الموقع الجديد للمراجعة بنجاح.",
             close: "إغلاق", distance: "المسافة إليك: ", rating: "التقييم: ", simulate: "🗺️ فتح في خرائط جوجل",
             gps_error: "يرجى تفعيل الـ GPS في هاتفك وإعطاء الإذن للتطبيق لحساب المسافات.",
-            sorting: "جاري تحديد موقعك وإعادة ترتيب المراحيض..."
+            sorting: "جاري تحديد موقعك وإعادة ترتيب المراحيض...",
+            addTitle: "➕ اقترح موقعاً جديداً", lblName: "اسم المرحاض / المنطقة:", placeholderName: "مثال: مرحاض حديقة ابن زيدون",
+            lblLoc: "العنوان أو الإحداثيات (GPS):", placeholderLoc: "مثال: قرب المسرح البلدي أو 30.41,-9.60",
+            submit: "إرسال المقترح", cancel: "إلغاء",
+            thanksTitle: "شكراً لك على مساعدتك!", thanksDesc: "تم استلام البيانات وجاري مراجعة الموقع لإضافته في الدليل."
         },
         en: {
             title: "Nature's Call", subtitle: "Your guide to finding nearest clean toilets",
             find: "🔍 Enable GPS & Sort by Nearest", add: "➕ Add New Toilet", list: "📍 Available Locations (Sorted by Nearest):",
             free: "Free", open: "Open Now", closed: "Closed Now", langLabel: "العربية",
-            alert_add: "Thank you! New location request submitted for review successfully.",
             close: "Close", distance: "Distance to you: ", rating: "Rating: ", simulate: "🗺️ Open in Google Maps",
             gps_error: "Please enable GPS and allow location permission to calculate distances.",
-            sorting: "Locating you and sorting toilets..."
+            sorting: "Locating you and sorting toilets...",
+            addTitle: "➕ Suggest a New Location", lblName: "Toilet / Area Name:", placeholderName: "e.g., Ibn Zaydoun Garden Toilet",
+            lblLoc: "Address or GPS Coordinates:", placeholderLoc: "e.g., Near Municipal Theater or 30.41,-9.60",
+            submit: "Submit Suggestion", cancel: "Cancel",
+            thanksTitle: "Thank you for your help!", thanksDesc: "Data received. We will review the location to add it to the directory."
         }
     };
 
-    // مصفوفة تحتوي على 20 مرحاضاً كبداية (موزعة جغرافياً في أكادير)
     let toilets = [
         { id: 1, nameAr: "مرحاض كورنيش أكادير الرئيسي", nameEn: "Agadir Corniche Main Toilet", price: "2 MAD", isOpen: true, rating: "4.5", lat: 30.4194, lng: -9.6052, currentDistance: null },
         { id: 2, nameAr: "مرحاض قرب سوق الأحد (الباب 5)", nameEn: "Souk El Had Toilet (Gate 5)", price: "مجاني", isOpen: true, rating: "3.8", lat: 30.4115, lng: -9.5812, currentDistance: null },
@@ -84,10 +122,9 @@
         { id: 5, nameAr: "مرحاض ساحة الأمل", nameEn: "Place Al Amal Public Toilet", price: "2 MAD", isOpen: true, rating: "3.5", lat: 30.4218, lng: -9.5989, currentDistance: null },
         { id: 6, nameAr: "مرحاض محطة الحافلات الباطوار", nameEn: "Battoir Bus Station Toilet", price: "1 MAD", isOpen: true, rating: "3.0", lat: 30.4068, lng: -9.5894, currentDistance: null },
         { id: 7, nameAr: "مرحاض تالبورجت (قرب المسجد)", nameEn: "Talborjt Mosque Public Toilet", price: "مجاني", isOpen: true, rating: "4.0", lat: 30.4249, lng: -9.5921, currentDistance: null },
-        { id: 8, nameAr: "مرحاض فونتي (المنطقة السياحية)", width: "2 MAD", nameEn: "Founty Tourist Zone Toilet", price: "2 MAD", isOpen: true, rating: "4.1", lat: 30.3985, lng: -9.6012, currentDistance: null },
+        { id: 8, nameAr: "مرحاض فونتي (المنطقة السياحية)", price: "2 MAD", isOpen: true, rating: "4.1", lat: 30.3985, lng: -9.6012, currentDistance: null },
         { id: 9, nameAr: "مرحاض قرب شاطئ أنزا", nameEn: "Anza Beach Public Toilet", price: "مجاني", isOpen: true, rating: "3.6", lat: 30.4421, lng: -9.6385, currentDistance: null },
         { id: 10, nameAr: "مرحاض حي الداخلة (قرب المركب الجامعي)", nameEn: "Dakhla Neighbourhood Toilet", price: "1 MAD", isOpen: false, rating: "3.4", lat: 30.4122, lng: -9.5584, currentDistance: null },
-        // يمكنك تعديل إحداثيات الـ 10 المتبقية لاحقاً بدقة تامة حسب رغبتك:
         { id: 11, nameAr: "مرحاض الهدى (قرب الملحقة الإدارية)", nameEn: "El Houda Public Toilet", price: "2 MAD", isOpen: true, rating: "3.9", lat: 30.3950, lng: -9.5520, currentDistance: null },
         { id: 12, nameAr: "مرحاض حي السلام التجاري", nameEn: "Hay Salam Commercial Toilet", price: "1 MAD", isOpen: true, rating: "3.7", lat: 30.4025, lng: -9.5630, currentDistance: null },
         { id: 13, nameAr: "مرحاض قرب حديقة ابن زيدون", nameEn: "Ibn Zaydoun Garden Toilet", price: "مجاني", isOpen: true, rating: "4.2", lat: 30.4205, lng: -9.5940, currentDistance: null },
@@ -103,9 +140,8 @@
     let currentLang = 'ar';
     let selectedToilet = null;
 
-    // دالة لحساب المسافة الجغرافية الحقيقية بين نقطتين (Haversine Formula)
     function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; // نصف قطر الأرض بالكيلومتر
+        const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLon = (lon2 - lon1) * Math.PI / 180;
         const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
@@ -123,21 +159,29 @@
         document.querySelector('.lang-btn').innerText = t.langLabel;
         document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
 
+        // تحديث نصوص واجهة الإضافة ديناميكياً حسب اللغة
+        document.getElementById('add-modal-title').innerText = t.addTitle;
+        document.getElementById('lbl-name').innerText = t.lblName;
+        document.getElementById('input-name').placeholder = t.placeholderName;
+        document.getElementById('lbl-location').innerText = t.lblLoc;
+        document.getElementById('input-location').placeholder = t.placeholderLoc;
+        document.getElementById('btn-submit').innerText = t.submit;
+        document.getElementById('btn-cancel').innerText = t.cancel;
+        document.getElementById('thanks-title').innerText = t.thanksTitle;
+        document.getElementById('thanks-desc').innerText = t.thanksDesc;
+
         const listDiv = document.getElementById('toilets-list');
         listDiv.innerHTML = '';
 
         toilets.forEach(toilet => {
-            const name = currentLang === 'ar' ? toilet.nameAr : toilet.nameEn;
+            const name = currentLang === 'ar' ? toilet.nameAr : (toilet.nameEn || toilet.nameAr);
             const priceText = (toilet.price === 'مجاني' && currentLang === 'en') ? t.free : toilet.price;
             const statusClass = toilet.isOpen ? 'tag-open' : 'tag-closed';
             const statusText = toilet.isOpen ? t.open : t.closed;
             
-            // عرض المسافة الحقيقية إذا تم حسابها عبر الـ GPS
             let distanceHTML = '';
             if (toilet.currentDistance !== null) {
-                let distStr = toilet.currentDistance < 1 
-                    ? `${Math.round(toilet.currentDistance * 1000)} متر` 
-                    : `${toilet.currentDistance.toFixed(2)} كم`;
+                let distStr = toilet.currentDistance < 1 ? `${Math.round(toilet.currentDistance * 1000)} متر` : `${toilet.currentDistance.toFixed(2)} كم`;
                 if(currentLang === 'en') distStr = toilet.currentDistance < 1 ? `${Math.round(toilet.currentDistance * 1000)} meters` : `${toilet.currentDistance.toFixed(2)} km`;
                 distanceHTML = `<span class="distance-text">📍 ${t.distance} ${distStr}</span>`;
             }
@@ -156,63 +200,65 @@
         });
     }
 
-    // الدالة السحرية لتفعيل الـ GPS الحقيقي وإعادة ترتيب المصفوفة
     function getUserLocationAndSort() {
         const t = translations[currentLang];
-        if (!navigator.geolocation) {
-            alert(t.gps_error);
-            return;
-        }
-
+        if (!navigator.geolocation) { alert(t.gps_error); return; }
         document.getElementById('btn-find').innerText = t.sorting;
-
         navigator.geolocation.getCurrentPosition(position => {
             const userLat = position.coords.latitude;
             const userLng = position.coords.longitude;
-
-            // حساب المسافة الحقيقية لكل مرحاض بناء على موقع المستخدم الآن
-            toilets.forEach(toilet => {
-                toilet.currentDistance = calculateDistance(userLat, userLng, toilet.lat, toilet.lng);
-            });
-
-            // إعادة ترتيب المصفوفة برمجياً من الأقرب (المسافة الأصغر) إلى الأبعد
+            toilets.forEach(toilet => { toilet.currentDistance = calculateDistance(userLat, userLng, toilet.lat, toilet.lng); });
             toilets.sort((a, b) => a.currentDistance - b.currentDistance);
-
-            // تحديث الواجهة فوراً بالترتيب الجديد والمدهش
             updateUI();
-        }, error => {
-            alert(t.gps_error);
-            updateUI();
-        });
+        }, error => { alert(t.gps_error); updateUI(); });
     }
-
-    function addNewToiletSim() { alert(translations[currentLang].alert_add); }
 
     function openToiletDetails(id) {
         selectedToilet = toilets.find(t => t.id === id);
-        const name = currentLang === 'ar' ? selectedToilet.nameAr : selectedToilet.nameEn;
+        const name = currentLang === 'ar' ? selectedToilet.nameAr : (selectedToilet.nameEn || selectedToilet.nameAr);
         const t = translations[currentLang];
-        
         let distStr = "⏳ اضغط على زر تفعيل الموقع لحسابها";
         if(selectedToilet.currentDistance !== null) {
             distStr = selectedToilet.currentDistance < 1 ? `${Math.round(selectedToilet.currentDistance * 1000)} متر` : `${selectedToilet.currentDistance.toFixed(2)} كم`;
         }
-        
         document.getElementById('modal-toilet-name').innerText = name;
-        document.getElementById('modal-toilet-details').innerHTML = `
-            <strong>${t.distance}</strong> ${distStr} <br>
-            <strong>${t.rating}</strong> ⭐ ${selectedToilet.rating}/5
-        `;
+        document.getElementById('modal-toilet-details').innerHTML = `<strong>${t.distance}</strong> ${distStr} <br><strong>${t.rating}</strong> ⭐ ${selectedToilet.rating}/5`;
         document.getElementById('btn-route').innerText = t.simulate;
         document.querySelector('#details-modal button.btn-secondary').innerText = t.close;
-        
         const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${selectedToilet.lat},${selectedToilet.lng}&travelmode=walking`;
         document.getElementById('btn-route').setAttribute('href', googleMapsUrl);
-        
         document.getElementById('details-modal').style.display = 'flex';
     }
 
-    function closeModal() { document.getElementById('details-modal').style.display = 'none'; }
+    // دوال التحكم بالواجهات المنبثقة الجديدة
+    function openAddModal() { document.getElementById('add-modal').style.display = 'flex'; }
+    function closeModal(modalId) { document.getElementById(modalId).style.display = 'none'; }
+
+    function submitNewToilet() {
+        const name = document.getElementById('input-name').value.trim();
+        const loc = document.getElementById('input-location').value.trim();
+        
+        if(name === "" || loc === "") {
+            alert(currentLang === 'ar' ? "الرجاء ملء جميع الحقول!" : "Please fill in all fields!");
+            return;
+        }
+
+        // إغلاق واجهة الإدخال
+        closeModal('add-modal');
+        
+        // تفريغ الحقول للمرة القادمة
+        document.getElementById('input-name').value = "";
+        document.getElementById('input-location').value = "";
+
+        // إظهار واجهة الشكر التلقائية
+        document.getElementById('thanks-modal').style.display = 'flex';
+
+        // إخفاء واجهة الشكر تلقائياً بعد ثانيتين (2000 مللي ثانية) والعودة للرئيسية
+        setTimeout(() => {
+            closeModal('thanks-modal');
+        }, 2000);
+    }
+
     function toggleLanguage() { currentLang = currentLang === 'ar' ? 'en' : 'ar'; updateUI(); }
 
     updateUI();
